@@ -78,16 +78,6 @@ const char	*win_login(void)
     return (cmd_return("cmd.exe /c echo %USERNAME%", 128, 0));
 }
 
-const char	*wsl_pwd(void)
-{
-	char cwd[512];
-	memset(cwd, 512, 0);
-    if ((getcwd(cwd, sizeof(cwd))))
-    	return (strdup(cwd));
-    printf("Error getting wsl cwd\n");   
-	return (NULL);
-}
-
 const char	*wsl_dir(void)
 {
 	char dir[1024];
@@ -116,6 +106,64 @@ const char *wsl_home_path(void)
 	strcpy(dir, wsl_dir());
 	strcat(dir, wsl_home_dir());
 	return (strdup(dir));
+}
+
+const char	*wsl_pwd(void)
+{
+	char cwd[512];
+	memset(cwd, 512, 0);
+    if ((getcwd(cwd, sizeof(cwd))))
+    	return (strdup(cwd));
+    printf("Error getting wsl cwd\n");   
+	return (NULL);
+}
+
+const char *pwd_convert(const char *pwd)
+{
+	char cwd[1024];
+	char *p = cwd;
+	memset(cwd, 1024, 0);
+	strcpy(cwd, pwd);
+	if (!cwd)
+		return (NULL);
+	if (!strncmp(cwd, "/mnt", 4))
+	{
+		p += 4;
+		cwd[4] = cwd[5] - 32;
+		cwd[5] = ':';
+	}
+	else if (cwd[0] == '~')
+	{
+		++p;
+		char tmp[512];
+		strcpy(tmp, p);
+		strcpy(cwd, wsl_home_path());
+		strcat(cwd, tmp);
+		p = cwd;
+	}
+	else if (cwd[0] == '/')
+	{
+		char tmp[512];
+		strcpy(tmp, p);
+		strcpy(cwd, wsl_dir());
+		strcat(cwd, tmp);
+		p = cwd;
+	}
+	else if (cwd[0] == '.')
+	{
+		return (pwd_convert(wsl_pwd()));
+	}
+	else
+	{
+		strcpy(cwd, wsl_dir());
+		strcat(cwd, wsl_pwd());
+	}
+	return (strdup(p));
+}
+
+const char	*win_pwd(void)
+{
+	return (pwd_convert(wsl_pwd()));
 }
 
 #endif
