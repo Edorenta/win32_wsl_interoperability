@@ -1,5 +1,4 @@
 #include <interop.h>
-#include <stdio.h>
 
 int		main(void)
 {
