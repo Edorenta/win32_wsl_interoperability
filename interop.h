@@ -1,16 +1,16 @@
-#ifndef _INTEROP_H
-# define _INTEROP_H
+#ifndef INTEROP_H
+# define INTEROP_H
 
-#ifndef _UNISTD_H
+#ifndef UNISTD_H
 # include <unistd.h>
 #endif
-#ifndef _STDLIB_H
+#ifndef STDLIB_H
 # include <stdlib.h>
 #endif
-#ifndef _STRING_H
+#ifndef STRING_H
 # include <string.h>
 #endif
-#ifndef _STDIO_H
+#ifndef STDIO_H
 # include <stdio.h>
 #endif
 
