@@ -14,8 +14,19 @@
 # include <stdio.h>
 #endif
 
-const char *linux_install_name =
-"CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc";
+const char *distro = "Ubuntu18.04";
+const char *mounting_point = "//$wsl";
+const char *install_drive = "/c";
+
+char* replace_char(char* str, char find, char replace){
+    char *current_pos = strchr(str,find);
+    while (current_pos){
+        *current_pos = replace;
+        current_pos = strchr(current_pos,find);
+    }
+    return str;
+}
+
 /*
 const char *wsl_hostname(void)
 {
@@ -78,15 +89,35 @@ const char	*win_login(void)
     return (cmd_return("cmd.exe /c echo %USERNAME%", 128, 0));
 }
 
+const char	*wsl_install_name(void)
+{
+	char dir[1024];
+	memset(dir, 1024, 0);
+	sprintf(dir, "CanonicalGroupLimited.%sonWindows_79rhkp1fndgsc", distro);
+	return (strdup(dir));
+}
+
+const char	*wsl_install_dir(void)
+{
+	char dir[1024];
+	memset(dir, 1024, 0);
+	sprintf(dir,
+		"%s/%s/AppData/Local/Packages/%s",
+		install_drive,
+		win_login(),
+		wsl_install_name()
+	);
+	return (strdup(dir));
+}
+
+// as the Hyper VM is now not accessible from explorer.exe, the virtual drive is
+// now mounted on local network
+// for this reason, we cannot cd to it from cmd but have to use pushd <path> then popd
 const char	*wsl_dir(void)
 {
 	char dir[1024];
 	memset(dir, 1024, 0);
-	strcpy(dir, "C:/Users/");
-	strcat(dir, win_login());
-	strcat(dir, "/AppData/Local/Packages/");
-	strcat(dir, linux_install_name);
-	strcat(dir, "/LocalState/rootfs");
+	sprintf(dir, "%s/%s", mounting_point, distro);
 	return (strdup(dir));
 }
 
@@ -94,8 +125,7 @@ const char *wsl_home_dir(void)
 {
 	char dir[128];
 	memset(dir, 128, 0);
-	strcpy(dir, "/home/");
-	strcat(dir, wsl_login());
+	sprintf(dir, "/home/%s", wsl_login());
 	return (strdup(dir));
 }
 
@@ -103,8 +133,7 @@ const char *wsl_home_path(void)
 {
 	char dir[1024];
 	memset(dir, 1024, 0);
-	strcpy(dir, wsl_dir());
-	strcat(dir, wsl_home_dir());
+	sprintf(dir, "%s%s", wsl_dir(), wsl_home_dir());
 	return (strdup(dir));
 }
 
@@ -158,6 +187,8 @@ const char *pwd_convert(const char *pwd)
 		strcpy(cwd, wsl_dir());
 		strcat(cwd, wsl_pwd());
 	}
+	p = replace_char(p, '/', '\\');
+	// sprintf(p, "\"%s\"", substring(p));
 	return (strdup(p));
 }
 
