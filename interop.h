@@ -14,8 +14,9 @@
 # include <stdio.h>
 #endif
 
-const char *distro = "Ubuntu18.04";
-const char *mounting_point = "//$wsl";
+const char *distro_install = "Ubuntu18.04";
+const char *distro_drive = "Ubuntu-18.04";
+const char *mounting_point = "//wsl$";
 const char *install_drive = "/c";
 
 char* replace_char(char* str, char find, char replace){
@@ -93,7 +94,7 @@ const char	*wsl_install_name(void)
 {
 	char dir[1024];
 	memset(dir, 1024, 0);
-	sprintf(dir, "CanonicalGroupLimited.%sonWindows_79rhkp1fndgsc", distro);
+	sprintf(dir, "CanonicalGroupLimited.%sonWindows_79rhkp1fndgsc", distro_install);
 	return (strdup(dir));
 }
 
@@ -117,7 +118,7 @@ const char	*wsl_dir(void)
 {
 	char dir[1024];
 	memset(dir, 1024, 0);
-	sprintf(dir, "%s/%s", mounting_point, distro);
+	sprintf(dir, "%s/%s", mounting_point, distro_drive);
 	return (strdup(dir));
 }
 
@@ -141,9 +142,10 @@ const char	*wsl_pwd(void)
 {
 	char cwd[512];
 	memset(cwd, 512, 0);
-    if ((getcwd(cwd, sizeof(cwd))))
+    if ((getcwd(cwd, sizeof(cwd)))) {
     	return (strdup(cwd));
-    printf("Error getting wsl cwd\n");   
+	}
+    printf("Error getting wsl cwd\n");
 	return (NULL);
 }
 
@@ -188,7 +190,6 @@ const char *pwd_convert(const char *pwd)
 		strcat(cwd, wsl_pwd());
 	}
 	p = replace_char(p, '/', '\\');
-	// sprintf(p, "\"%s\"", substring(p));
 	return (strdup(p));
 }
 
